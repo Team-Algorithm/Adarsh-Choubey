@@ -62,6 +62,9 @@ Fingerprint: 3957d6ddcc469e0133ab10f973c293b6da785d30:secrets.py:github-pat:1
 3:47PM WRN leaks found: 1
 
 The --source option sets the folder to scan, and the -v option prints the details of each finding.
+Scan with secret redaction:
+
+Gitleaks exits with code 0 when no secrets are found and with code 1 when at least one secret is found. An exit code of 1 therefore indicates findings, not a tool failure.
 
 ## 5. Output
 
@@ -74,11 +77,64 @@ The first test used a token with a predictable pattern, and Gitleaks did not fla
 
 ## 6. SARIF Structure
 
-_To be documented._
+Gitleaks exports its findings in SARIF v2.1.0 using the following command:
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+3:56PM INF 3 commits scanned.
+3:56PM INF scanned ~159 bytes (159 bytes) in 264ms
+3:56PM WRN leaks found: 1
+
+The output file contains a list called runs, with one entry per tool. Each run has two main parts. The tool section describes the scanner and lists all of its rules. The results section lists the findings. A shortened version of the output is shown below.
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "gitleaks",
+          "rules": [ ... ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "github-pat",
+          "message": {
+            "text": "github-pat has detected secret for file secrets.py at commit 3957d6d..."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": { "uri": "secrets.py" },
+                "region": { "startLine": 1, "startColumn": 17, "endLine": 1, "endColumn": 56 }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "commitSha": "3957d6d...",
+            "author": "Adarsh-Choubey",
+            "commitMessage": "Add secrets file with dummy keys"
+          }
+        }
+      ]
+    }
+  ]
+}
+The main fields used by ReleaseShield AI are listed below.
+ruleId identifies the detection rule that matched.
+locations gives the file path, line and column of the finding.
+partialFingerprints contains the commit, author and date of the finding.
+message describes the finding in plain text.
+
+The rule list under tool.driver.rules contains every rule available in Gitleaks, not only the rules that matched. Findings are found only under results.
 
 ## 7. Runner Code
 
-_To be documented._
+
 
 ## 8. Issues and Resolutions
 
@@ -86,7 +142,11 @@ _To be documented._
 
 ## 9. Limitations
 
-_To be documented._
+By default, the SARIF output includes the detected secret in the snippet field. The --redact option should be used so that secrets are not stored or forwarded in clear text.
+
+The fingerprint information provided by Gitleaks includes the commit identifier and date. These values change between commits, so ReleaseShield AI will need its own stable fingerprint for deduplication.
+
+Detection depends on both the format and the randomness of a value. A token with a predictable pattern was not detected in testing, while a random-looking token was detected.
 
 ## Status
 
