@@ -90,7 +90,9 @@ Gitleaks exports its findings in SARIF v2.1.0 using the following command:
 3:56PM WRN leaks found: 1
 
 The output file contains a list called runs, with one entry per tool. Each run has two main parts. The tool section describes the scanner and lists all of its rules. The results section lists the findings. A shortened version of the output is shown below.
+
 {
+
   "version": "2.1.0",
   "runs": [
     {
@@ -124,6 +126,7 @@ The output file contains a list called runs, with one entry per tool. Each run h
     }
   ]
 }
+
 The main fields used by ReleaseShield AI are listed below.
 ruleId identifies the detection rule that matched.
 locations gives the file path, line and column of the finding.
