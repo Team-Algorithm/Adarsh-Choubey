@@ -133,12 +133,57 @@ message describes the finding in plain text.
 The rule list under tool.driver.rules contains every rule available in Gitleaks, not only the rules that matched. Findings are found only under results.
 
 ## 7. Runner Code
+The Gitleaks runner is a Python module that executes Gitleaks on a repository and returns a result that follows the team contract: tool, sarif_path, status, duration and error.
 
+Status values:
 
+ok: exit code 0, no secrets found.
+issues_found: exit code 1, at least one secret found.
+failed: Gitleaks could not run, timed out, returned another exit code, or did not write a SARIF file.
+
+Design decisions:
+
+Exit code 1 is treated as a valid result and not as a failure.
+The --redact option is always used so that secrets are masked in the SARIF output.
+A timeout prevents a stuck scan from blocking the pipeline.
+A missing executable is reported as a failed result instead of raising an exception, so that other scanners can still complete.
+Any old report file is removed before each run so that a stale file is never mistaken for a new result.
+
+Test 1, repository with a dummy secret:
+
+RunnerResult(tool='gitleaks', sarif_path='gitleaks.sarif', status='issues_found', duration=2.52, error=None)
+
+Result: Gitleaks found the dummy secret and the runner reported issues_found. The scan took about 2.5 seconds.
+
+Test 2, folder that is not a git repository:
+
+RunnerResult(tool='gitleaks', sarif_path=None, status='failed', duration=0.29, error='Gitleaks finished but no SARIF file was written')
+
+Result: No SARIF file was produced, so the runner reported failed instead of raising an exception.
+
+Test 3, path that does not exist:
+
+RunnerResult(tool='gitleaks', sarif_path=None, status='failed', duration=0.29, error='Gitleaks finished but no SARIF file was written')
+
+Result: The runner reported failed. The error message does not state the exact cause, which is listed as an improvement in the Limitations section.
 
 ## 8. Issues and Resolutions
 
-_To be documented._
+Issue 1: The first scan reported no leaks.
+Cause: The dummy token had a predictable pattern (sequential letters and digits), and Gitleaks did not treat it as a secret.
+Resolution: A token with a random-looking value was used, and Gitleaks detected it.
+
+Issue 2: The command --redact failed in PowerShell with a parser error.
+Cause: --redact is an option of the gitleaks detect command and cannot be run on its own. PowerShell interpreted the double dash as an operator.
+Resolution: The option was added to the full gitleaks detect command.
+
+Issue 3: A dummy AWS access key was not detected.
+Cause: The dummy key used characters that are not valid in the AWS key format.
+Resolution: Only a GitHub token was used for the main test.
+
+Issue 4: The commit author email in the report showed a placeholder address.
+Cause: The global git email was set to a placeholder value.
+Resolution: The git configuration was corrected with the actual email address.
 
 ## 9. Limitations
 
@@ -149,9 +194,8 @@ The fingerprint information provided by Gitleaks includes the commit identifier 
 Detection depends on both the format and the randomness of a value. A token with a predictable pattern was not detected in testing, while a random-looking token was detected.
 
 ## Status
-
-- [ ] Installation
-- [ ] Scan executed
-- [ ] SARIF output generated
-- [ ] Runner implemented
-- [ ] Unit tests written
+- [✔️] Installation
+- [✔️] Scan executed
+- [✔️] SARIF output generated
+- [✔️] Runner implemented
+- [✔️] Unit tests written
