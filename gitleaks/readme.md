@@ -16,7 +16,21 @@ export the findings as SARIF v2.1.0, and report a status ("ok",
 
 ## 3. Installation
 
-_To be documented._
+Gitleaks was installed on Windows using the Windows Package Manager (winget):
+
+powershell
+winget install gitleaks.gitleaks
+
+
+The installation was verified by checking the installed version:
+
+powershell
+gitleaks version
+
+
+![Gitleaks installation verified](screenshots/01-install.png)
+
+Figure 1: Gitleaks version output confirming a successful installation._
 
 ## 4. Commands
 
