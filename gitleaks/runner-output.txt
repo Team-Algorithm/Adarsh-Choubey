@@ -1,0 +1,8 @@
+Test 1: repository with a dummy secret
+RunnerResult(tool='gitleaks', sarif_path='gitleaks.sarif', status='issues_found', duration=2.5225101999239996, error=None)
+
+Test 2: folder that is not a git repository
+RunnerResult(tool='gitleaks', sarif_path=None, status='failed', duration=0.2938590000849217, error='Gitleaks finished but no SARIF file was written')
+
+Test 3: path that does not exist
+RunnerResult(tool='gitleaks', sarif_path=None, status='failed', duration=0.28715120011474937, error='Gitleaks finished but no SARIF file was written')
