@@ -28,7 +28,6 @@ powershell
 gitleaks version
 
 
-![Gitleaks installation verified](screenshots/01-install.png)
 
 Figure 1: Gitleaks version output confirming a successful installation.
 <img width="920" height="205" alt="Screenshot 2026-10-23 152553" src="https://github.com/user-attachments/assets/9a281942-8418-4859-9e8a-8be7de1280da" />
